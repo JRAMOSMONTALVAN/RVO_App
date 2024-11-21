@@ -3,83 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller Mecánico - Gestión de Clientes y Vehículos</title>
-    <script>
-        function verificarPlaca() {
-            const placa = document.getElementById('placa').value;
-
-            if (placa.length === 6) {
-                fetch(`/verificar_placa?placa=${placa}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.existe) {
-                            document.getElementById('resultado').innerHTML = `
-                                <h3>Vehículo Existente</h3>
-                                <p><strong>Cliente:</strong> ${data.cliente.nombre_apellidos}</p>
-                                <p><strong>Documento:</strong> ${data.cliente.documento}</p>
-                                <p><strong>Teléfono:</strong> ${data.cliente.telefono}</p>
-                                <p><strong>Email:</strong> ${data.cliente.email}</p>
-                                <p><strong>Modelo del Vehículo:</strong> ${data.vehiculo.modelo}</p>
-                                <p><strong>Año del Vehículo:</strong> ${data.vehiculo.ano_vehiculo}</p>
-                            `;
-                            document.getElementById('formulario_vehiculo').style.display = 'none';
-                        } else {
-                            document.getElementById('resultado').innerHTML = `<h3>Placa no registrada. Ingrese los datos del vehículo.</h3>`;
-                            document.getElementById('formulario_vehiculo').style.display = 'block';
-                        }
-                    });
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Inicio - Taller Mecánico</title>
 </head>
 <body>
-    <h1>Ingresar Información de Cliente</h1>
-    <form action="/agregar_cliente" method="POST">
-        <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
-        <input type="text" id="nombre_apellidos" name="nombre_apellidos" required><br><br>
+    <!-- Mostrar mensajes flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div>
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} mt-3">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-        <label for="documento">Documento (RUC/DNI):</label>
-        <input type="text" id="documento" name="documento" required><br><br>
-
-        <label for="telefono">Teléfono (9 dígitos, empieza con 9):</label>
-        <input type="text" id="telefono" name="telefono" pattern="9[0-9]{8}" required><br><br>
-
-        <label for="email">Correo Electrónico (opcional):</label>
-        <input type="email" id="email" name="email"><br><br>
-
-        <button type="submit">Guardar Cliente</button>
-    </form>
-
-    <h1>Verificar o Ingresar Vehículo</h1>
-    <form>
-        <label for="placa">Placa del Vehículo (6 caracteres, sin espacios ni guiones):</label>
-        <input type="text" id="placa" name="placa" pattern="[A-Za-z0-9]{6}" required>
-        <button type="button" onclick="verificarPlaca()">Verificar Placa</button>
-    </form>
-
-    <div id="resultado"></div>
-
-    <div id="formulario_vehiculo" style="display: none;">
-        <h2>Ingresar Información del Vehículo</h2>
-        <form action="/agregar_vehiculo" method="POST">
-            <input type="hidden" id="cliente_id" name="cliente_id">
-            <label for="cliente_id">Cliente Asociado:</label>
-            <select id="cliente_id" name="cliente_id" required>
-                <option value="" disabled selected>Seleccione un cliente</option>
-                {% for cliente in clientes %}
-                    <option value="{{ cliente.id }}">{{ cliente.nombre_apellidos }}</option>
-                {% endfor %}
-            </select><br><br>
-
-            <label for="modelo">Modelo del Vehículo:</label>
-            <input type="text" id="modelo" name="modelo" required><br><br>
-
-            <label for="ano_vehiculo">Año del Vehículo:</label>
-            <input type="text" id="ano_vehiculo" name="ano_vehiculo" required><br><br>
-
-            <button type="submit">Guardar Vehículo</button>
+    <!-- Contenido de la página de inicio -->
+    <div class="container mt-5">
+        <h1>Taller Mecánico - Gestión de Clientes y Vehículos</h1>
+        
+        <!-- Formulario para agregar un cliente -->
+        <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
+            <div class="form-group">
+                <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
+                <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" required>
+            </div>
+            <div class="form-group">
+                <label for="documento">Documento (RUC/DNI):</label>
+                <input type="text" class="form-control" id="documento" name="documento" required>
+            </div>
+            <div class="form-group">
+                <label for="telefono">Teléfono (9 dígitos, empieza con 9):</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" required pattern="9[0-9]{8}">
+            </div>
+            <div class="form-group">
+                <label for="email">Correo Electrónico (opcional):</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cliente</button>
         </form>
+        
+        <!-- Enlace para listar clientes -->
+        <div class="mt-4">
+            <a href="{{ url_for('listar_clientes') }}" class="btn btn-secondary">Ver Lista de Clientes</a>
+        </div>
     </div>
+    
+    <!-- Script de Bootstrap -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-
