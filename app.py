@@ -69,11 +69,11 @@ def verificar_cliente():
     if cliente:
         # Si el cliente existe, mostrar los datos para editar
         flash('Cliente encontrado. Puedes editar la información.', 'info')
-        return render_template('index.html', cliente=cliente)
+        return render_template('index.html', cliente=cliente, editar=True)
     else:
         # Si el cliente no existe, permitir el registro
         flash('Cliente no encontrado. Ingresa la información para registrarlo.', 'warning')
-        return render_template('index.html', documento=documento)
+        return render_template('index.html', documento=documento, editar=False)
 
 # Ruta para procesar el formulario de ingreso o edición de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
