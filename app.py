@@ -58,33 +58,34 @@ def home():
 # Ruta para procesar el formulario de ingreso de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
 def agregar_cliente():
-    nombre_apellidos = request.form.get('nombre_apellidos')
-    documento = request.form.get('documento')
-    telefono = request.form.get('telefono')
-    email = request.form.get('email')
-
-    # Verificar que todos los campos obligatorios estén completos
-    if not nombre_apellidos or not documento or not telefono:
-        flash('Por favor, completa todos los campos obligatorios', 'danger')
-        return redirect(url_for('home'))
-
-    # Crear una nueva entrada en la base de datos
-    nuevo_cliente = Cliente(
-        nombre_apellidos=nombre_apellidos,
-        documento=documento,
-        telefono=telefono,
-        email=email
-    )
-
-    # Agregar y confirmar los cambios en la base de datos
     try:
+        nombre_apellidos = request.form.get('nombre_apellidos')
+        documento = request.form.get('documento')
+        telefono = request.form.get('telefono')
+        email = request.form.get('email')
+
+        # Verificar que todos los campos obligatorios estén completos
+        if not nombre_apellidos or not documento or not telefono:
+            flash('Por favor, completa todos los campos obligatorios', 'danger')
+            return redirect(url_for('home'))
+
+        # Crear una nueva entrada en la base de datos
+        nuevo_cliente = Cliente(
+            nombre_apellidos=nombre_apellidos,
+            documento=documento,
+            telefono=telefono,
+            email=email
+        )
+
+        # Agregar y confirmar los cambios en la base de datos
         db.session.add(nuevo_cliente)
         db.session.commit()
         # Agregar un mensaje de confirmación
         flash('Cliente agregado exitosamente', 'success')
+
     except Exception as e:
         db.session.rollback()
-        flash('Error al agregar el cliente: ' + str(e), 'danger')
+        flash(f'Error al agregar el cliente: {str(e)}', 'danger')
 
     return redirect(url_for('home'))
 
