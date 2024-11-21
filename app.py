@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 import os
 import webbrowser
@@ -7,6 +7,7 @@ import time
 
 # Configurar la aplicación Flask
 taller_app = Flask(__name__)
+taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
 # Configuración de la base de datos SQLite
 taller_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///taller_mecanico.db'
@@ -57,10 +58,15 @@ def home():
 # Ruta para procesar el formulario de ingreso de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
 def agregar_cliente():
-    nombre_apellidos = request.form['nombre_apellidos']
-    documento = request.form['documento']
-    telefono = request.form['telefono']
-    email = request.form['email']
+    nombre_apellidos = request.form.get('nombre_apellidos')
+    documento = request.form.get('documento')
+    telefono = request.form.get('telefono')
+    email = request.form.get('email')
+
+    # Verificar que todos los campos obligatorios estén completos
+    if not nombre_apellidos or not documento or not telefono:
+        flash('Por favor, completa todos los campos obligatorios', 'danger')
+        return redirect(url_for('home'))
 
     # Crear una nueva entrada en la base de datos
     nuevo_cliente = Cliente(
@@ -69,10 +75,16 @@ def agregar_cliente():
         telefono=telefono,
         email=email
     )
-    
+
     # Agregar y confirmar los cambios en la base de datos
-    db.session.add(nuevo_cliente)
-    db.session.commit()
+    try:
+        db.session.add(nuevo_cliente)
+        db.session.commit()
+        # Agregar un mensaje de confirmación
+        flash('Cliente agregado exitosamente', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error al agregar el cliente: ' + str(e), 'danger')
 
     return redirect(url_for('home'))
 
