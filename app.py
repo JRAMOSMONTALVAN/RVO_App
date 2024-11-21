@@ -59,6 +59,11 @@ def home():
 def verificar_cliente():
     documento = request.form.get('documento')
 
+    # Verificar si el documento tiene una longitud válida (DNI: 8 dígitos, RUC: 11 dígitos)
+    if len(documento) not in [8, 11] or not documento.isdigit():
+        flash('El documento debe tener 8 dígitos (DNI) o 11 dígitos (RUC).', 'danger')
+        return redirect(url_for('home'))
+
     # Verificar si ya existe un cliente con el mismo documento
     cliente = Cliente.query.filter_by(documento=documento).first()
     if cliente:
