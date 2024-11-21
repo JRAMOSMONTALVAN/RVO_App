@@ -21,7 +21,7 @@ db = SQLAlchemy(taller_app)
 class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre_apellidos = db.Column(db.String(150), nullable=False)
-    documento = db.Column(db.String(50), nullable=False)
+    documento = db.Column(db.String(50), nullable=False, unique=True)  # Añadido unique=True para evitar duplicados
     telefono = db.Column(db.String(9), nullable=False)
     email = db.Column(db.String(100))
     vehiculos = db.relationship('Vehiculo', backref='cliente', lazy=True)
@@ -52,10 +52,25 @@ class Proforma(db.Model):
 # Ruta principal para mostrar los formularios de cliente y vehículo
 @taller_app.route('/')
 def home():
-    clientes = Cliente.query.all()
-    return render_template('index.html', clientes=clientes)
+    return render_template('index.html')
 
-# Ruta para procesar el formulario de ingreso de cliente
+# Ruta para verificar si el cliente ya existe
+@taller_app.route('/verificar_cliente', methods=['POST'])
+def verificar_cliente():
+    documento = request.form.get('documento')
+
+    # Verificar si ya existe un cliente con el mismo documento
+    cliente = Cliente.query.filter_by(documento=documento).first()
+    if cliente:
+        # Si el cliente existe, mostrar los datos para editar
+        flash('Cliente encontrado. Puedes editar la información.', 'info')
+        return render_template('index.html', cliente=cliente)
+    else:
+        # Si el cliente no existe, permitir el registro
+        flash('Cliente no encontrado. Ingresa la información para registrarlo.', 'warning')
+        return render_template('index.html', documento=documento)
+
+# Ruta para procesar el formulario de ingreso o edición de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
 def agregar_cliente():
     try:
@@ -69,23 +84,30 @@ def agregar_cliente():
             flash('Por favor, completa todos los campos obligatorios', 'danger')
             return redirect(url_for('home'))
 
-        # Crear una nueva entrada en la base de datos
-        nuevo_cliente = Cliente(
-            nombre_apellidos=nombre_apellidos,
-            documento=documento,
-            telefono=telefono,
-            email=email
-        )
-
-        # Agregar y confirmar los cambios en la base de datos
-        db.session.add(nuevo_cliente)
-        db.session.commit()
-        # Agregar un mensaje de confirmación
-        flash('Cliente agregado exitosamente', 'success')
+        # Verificar si ya existe un cliente con el mismo documento
+        cliente_existente = Cliente.query.filter_by(documento=documento).first()
+        if cliente_existente:
+            # Si el cliente ya existe, actualizar la información
+            cliente_existente.nombre_apellidos = nombre_apellidos
+            cliente_existente.telefono = telefono
+            cliente_existente.email = email
+            db.session.commit()
+            flash('Información del cliente actualizada exitosamente.', 'success')
+        else:
+            # Crear una nueva entrada en la base de datos
+            nuevo_cliente = Cliente(
+                nombre_apellidos=nombre_apellidos,
+                documento=documento,
+                telefono=telefono,
+                email=email
+            )
+            db.session.add(nuevo_cliente)
+            db.session.commit()
+            flash('Cliente agregado exitosamente.', 'success')
 
     except Exception as e:
         db.session.rollback()
-        flash(f'Error al agregar el cliente: {str(e)}', 'danger')
+        flash(f'Error al agregar o actualizar el cliente: {str(e)}', 'danger')
 
     return redirect(url_for('home'))
 
