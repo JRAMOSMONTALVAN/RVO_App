@@ -11,7 +11,6 @@ taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
 # Configuración de la base de datos SQLite
 taller_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///taller_mecanico.db'
-# Desactiva el seguimiento de modificaciones para mejorar el rendimiento, ya que consume recursos adicionales.
 taller_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Crear una instancia de la base de datos
@@ -51,12 +50,14 @@ def home():
 def verificar_cliente():
     documento = request.form.get('documento')
 
-    # Verificar si el documento tiene una longitud válida (DNI: 8 dígitos, RUC: 11 dígitos)
+    if not documento:
+        flash('Por favor, ingresa un documento válido.', 'danger')
+        return redirect(url_for('home'))
+
     if len(documento) not in [8, 11] or not documento.isdigit():
         flash('El documento debe tener 8 dígitos (DNI) o 11 dígitos (RUC).', 'danger')
         return redirect(url_for('home', documento=documento))
 
-    # Verificar si ya existe un cliente con el mismo documento
     cliente = Cliente.query.filter_by(documento=documento).first()
     if cliente:
         flash('Cliente encontrado. Puedes editar la información.', 'info')
@@ -84,7 +85,6 @@ def agregar_cliente():
         flash('Por favor, completa todos los campos obligatorios', 'danger')
         return render_template('index.html', documento=documento, nombre_apellidos=nombre_apellidos, telefono=telefono, email=email, editar=False)
 
-    # Verificar si ya existe un cliente con el mismo documento
     cliente_existente = Cliente.query.filter_by(documento=documento).first()
     if cliente_existente:
         cliente_existente.nombre_apellidos = nombre_apellidos
