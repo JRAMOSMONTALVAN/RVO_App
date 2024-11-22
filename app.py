@@ -21,18 +21,10 @@ db = SQLAlchemy(taller_app)
 class Cliente(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre_apellidos = db.Column(db.String(150), nullable=False)
-    documento = db.Column(db.String(50), nullable=False, unique=True)  # Añadido unique=True para evitar duplicados
+    documento = db.Column(db.String(50), nullable=False, unique=True)
     telefono = db.Column(db.String(9), nullable=False)
     email = db.Column(db.String(100))
     vehiculos = db.relationship('Vehiculo', backref='cliente', lazy=True)
-
-# Modelo para Vehículos
-class Vehiculo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
-    placa = db.Column(db.String(6), nullable=False, unique=True)
-    modelo = db.Column(db.String(100), nullable=False)
-    ano_vehiculo = db.Column(db.String(4), nullable=False)
 
 # Ruta principal para mostrar el formulario de ingreso del documento
 @taller_app.route('/')
@@ -59,13 +51,17 @@ def verificar_cliente():
     # Verificar si ya existe un cliente con el mismo documento
     cliente = Cliente.query.filter_by(documento=documento).first()
     if cliente:
-        # Si el cliente existe, mostrar los datos para editar
         flash('Cliente encontrado. Puedes editar la información.', 'info')
         return redirect(url_for('home', documento=documento))
     else:
-        # Si el cliente no existe, permitir el registro
         flash('Cliente no encontrado. Ingresa la información para registrarlo.', 'warning')
         return redirect(url_for('home', documento=documento))
+
+# Ruta para listar los clientes ingresados
+@taller_app.route('/clientes')
+def listar_clientes():
+    clientes = Cliente.query.all()
+    return render_template('clientes.html', clientes=clientes)
 
 # Ruta para procesar el formulario de ingreso o edición de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
@@ -78,19 +74,17 @@ def agregar_cliente():
     # Verificar que todos los campos obligatorios estén completos
     if not nombre_apellidos or not documento or not telefono:
         flash('Por favor, completa todos los campos obligatorios', 'danger')
-        return render_template('index.html', documento=documento, nombre_apellidos=nombre_apellidos, telefono=telefono, email=email, editar=False)
+        return redirect(url_for('home', documento=documento))
 
     # Verificar si ya existe un cliente con el mismo documento
     cliente_existente = Cliente.query.filter_by(documento=documento).first()
     if cliente_existente:
-        # Si el cliente ya existe, actualizar la información
         cliente_existente.nombre_apellidos = nombre_apellidos
         cliente_existente.telefono = telefono
         cliente_existente.email = email
         db.session.commit()
         flash('Información del cliente actualizada exitosamente.', 'success')
     else:
-        # Crear una nueva entrada en la base de datos
         nuevo_cliente = Cliente(
             nombre_apellidos=nombre_apellidos,
             documento=documento,
@@ -101,21 +95,14 @@ def agregar_cliente():
         db.session.commit()
         flash('Cliente agregado exitosamente.', 'success')
 
-    # Limpiar el formulario después de agregar cliente exitosamente
     return redirect(url_for('home'))
-
-# Ruta para listar los clientes ingresados
-@taller_app.route('/listar_clientes')
-def listar_clientes():
-    clientes = Cliente.query.all()
-    return render_template('clientes.html', clientes=clientes)
 
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
     db.create_all()
 
 def open_browser():
-    time.sleep(2)  # Espera breve para asegurar que el servidor esté listo
+    time.sleep(2)
     webbrowser.open_new('http://127.0.0.1:5000')
 
 if __name__ == '__main__':
