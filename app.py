@@ -73,7 +73,7 @@ def verificar_cliente():
     else:
         # Si el cliente no existe, permitir el registro
         flash('Cliente no encontrado. Ingresa la información para registrarlo.', 'warning')
-        return render_template('index.html', documento=documento, editar=False)
+        return render_template('index.html', documento=documento, editar=True)
 
 # Ruta para procesar el formulario de ingreso o edición de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
@@ -115,73 +115,6 @@ def agregar_cliente():
         flash(f'Error al agregar o actualizar el cliente: {str(e)}', 'danger')
 
     return redirect(url_for('home'))
-
-# Ruta para procesar el formulario de ingreso de vehículo
-@taller_app.route('/agregar_vehiculo', methods=['POST'])
-def agregar_vehiculo():
-    cliente_id = request.form['cliente_id']
-    placa = request.form['placa']
-    modelo = request.form['modelo']
-    ano_vehiculo = request.form['ano_vehiculo']
-
-    # Crear una nueva entrada en la base de datos
-    nuevo_vehiculo = Vehiculo(
-        cliente_id=cliente_id,
-        placa=placa,
-        modelo=modelo,
-        ano_vehiculo=ano_vehiculo
-    )
-    
-    # Agregar y confirmar los cambios en la base de datos
-    db.session.add(nuevo_vehiculo)
-    db.session.commit()
-
-    return redirect(url_for('home'))
-
-# Ruta para listar los clientes ingresados
-@taller_app.route('/clientes')
-def listar_clientes():
-    clientes = Cliente.query.all()
-    return render_template('clientes.html', clientes=clientes)
-
-# Ruta para mostrar el formulario de proforma
-@taller_app.route('/proforma')
-def proforma():
-    clientes = Cliente.query.all()
-    vehiculos = Vehiculo.query.all()
-    return render_template('proforma.html', clientes=clientes, vehiculos=vehiculos)
-
-# Ruta para procesar el formulario de proforma
-@taller_app.route('/agregar_proforma', methods=['POST'])
-def agregar_proforma():
-    cliente_id = request.form['cliente_id']
-    vehiculo_id = request.form['vehiculo_id']
-    descripcion_servicio = request.form['descripcion_servicio']
-    kilometraje = request.form['kilometraje']
-    cantidad = int(request.form['cantidad'])
-    precio_unitario = float(request.form['precio_unitario'])
-    subtotal = cantidad * precio_unitario
-    igv = subtotal * 0.18
-    total = subtotal + igv
-
-    # Crear una nueva entrada en la base de datos
-    nueva_proforma = Proforma(
-        cliente_id=cliente_id,
-        vehiculo_id=vehiculo_id,
-        descripcion_servicio=descripcion_servicio,
-        kilometraje=kilometraje,
-        cantidad=cantidad,
-        precio_unitario=precio_unitario,
-        subtotal=subtotal,
-        igv=igv,
-        total=total
-    )
-    
-    # Agregar y confirmar los cambios en la base de datos
-    db.session.add(nueva_proforma)
-    db.session.commit()
-
-    return redirect(url_for('proforma'))
 
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
