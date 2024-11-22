@@ -38,7 +38,10 @@ class Vehiculo(db.Model):
 @taller_app.route('/')
 def home():
     documento = request.args.get('documento', '')
-    return render_template('index.html', documento=documento)
+    cliente = None
+    if documento:
+        cliente = Cliente.query.filter_by(documento=documento).first()
+    return render_template('index.html', documento=documento, cliente=cliente)
 
 # Ruta para verificar si el cliente ya existe
 @taller_app.route('/verificar_cliente', methods=['POST'])
@@ -55,11 +58,11 @@ def verificar_cliente():
     if cliente:
         # Si el cliente existe, mostrar los datos para editar
         flash('Cliente encontrado. Puedes editar la información.', 'info')
-        return render_template('index.html', cliente=cliente, documento=documento, editar=True)
+        return redirect(url_for('home', documento=documento))
     else:
         # Si el cliente no existe, permitir el registro
         flash('Cliente no encontrado. Ingresa la información para registrarlo.', 'warning')
-        return render_template('index.html', documento=documento, editar=True)
+        return redirect(url_for('home', documento=documento, editar=True))
 
 # Ruta para procesar el formulario de ingreso o edición de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
