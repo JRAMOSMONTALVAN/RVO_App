@@ -38,13 +38,15 @@ class Vehiculo(db.Model):
 @taller_app.route('/')
 def home():
     documento = request.args.get('documento', '')
+    if documento.lower() == 'none':
+        documento = ''  # Reemplazar 'None' por una cadena vacía
     cliente = None
     editar = False
-    if documento and documento.lower() != 'none':
+    if documento:
         cliente = Cliente.query.filter_by(documento=documento).first()
         if cliente:
             editar = True
-    return render_template('index.html', documento=documento if documento.lower() != 'none' else '', cliente=cliente, editar=editar)
+    return render_template('index.html', documento=documento, cliente=cliente, editar=editar)
 
 # Ruta para verificar si el cliente ya existe
 @taller_app.route('/verificar_cliente', methods=['POST'])
