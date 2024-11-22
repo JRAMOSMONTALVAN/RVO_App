@@ -106,7 +106,8 @@ def agregar_cliente():
         db.session.rollback()
         flash(f'Error al agregar o actualizar el cliente: {str(e)}', 'danger')
 
-    return redirect(url_for('home', documento=documento))
+    # Redirigir al inicio sin parámetros para limpiar el formulario
+    return redirect(url_for('home'))
 
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
