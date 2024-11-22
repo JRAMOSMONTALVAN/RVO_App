@@ -104,6 +104,12 @@ def agregar_cliente():
     # Limpiar el formulario después de agregar cliente exitosamente
     return redirect(url_for('home'))
 
+# Ruta para listar los clientes ingresados
+@taller_app.route('/listar_clientes')
+def listar_clientes():
+    clientes = Cliente.query.all()
+    return render_template('clientes.html', clientes=clientes)
+
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
     db.create_all()
@@ -117,8 +123,3 @@ if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     taller_app.run(host='0.0.0.0', port=port, debug=True)
 
-# Ruta para listar los clientes ingresados
-@taller_app.route('/clientes')
-def listar_clientes():
-    clientes = Cliente.query.all()
-    return render_template('clientes.html', clientes=clientes)
