@@ -34,7 +34,7 @@ class Vehiculo(db.Model):
     modelo = db.Column(db.String(100), nullable=False)
     ano_vehiculo = db.Column(db.String(4), nullable=False)
 
-# Ruta principal para mostrar los formularios de cliente y vehículo
+# Ruta principal para mostrar el formulario de ingreso del documento
 @taller_app.route('/')
 def home():
     documento = request.args.get('documento', '')
@@ -47,7 +47,7 @@ def home():
     return render_template('index.html', documento=documento, cliente=cliente, editar=editar)
 
 # Ruta para verificar si el cliente ya existe
-@taller_app.route('/verificar_cliente', methods=['POST'])
+taller_app.route('/verificar_cliente', methods=['POST'])(
 def verificar_cliente():
     documento = request.form.get('documento')
 
