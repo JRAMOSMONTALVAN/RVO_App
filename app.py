@@ -26,6 +26,14 @@ class Cliente(db.Model):
     email = db.Column(db.String(100))
     vehiculos = db.relationship('Vehiculo', backref='cliente', lazy=True)
 
+# Modelo para Vehículos (debe estar definido después de la clase Cliente)
+class Vehiculo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
+    placa = db.Column(db.String(6), nullable=False, unique=True)
+    modelo = db.Column(db.String(100), nullable=False)
+    ano_vehiculo = db.Column(db.String(4), nullable=False)
+
 # Ruta principal para mostrar el formulario de ingreso del documento
 @taller_app.route('/')
 def home():
