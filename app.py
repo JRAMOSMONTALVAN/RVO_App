@@ -37,16 +37,16 @@ class Vehiculo(db.Model):
 # Ruta principal para mostrar el formulario de ingreso del documento
 @taller_app.route('/')
 def home():
-    documento = request.args.get('documento', '')
-    if documento.lower() == 'none':
-        documento = ''  # Reemplazar 'None' por una cadena vacía
+    documento = request.args.get('documento', '').strip()
+    if documento == 'None':
+        documento = ''  # Asegurarse de que el valor 'None' se reemplace por una cadena vacía
     cliente = None
     editar = False
     if documento:
         cliente = Cliente.query.filter_by(documento=documento).first()
         if cliente:
             editar = True
-    return render_template('index.html', documento=documento, cliente=cliente, editar=editar)
+    return render_template('index.html', documento=documento or '', cliente=cliente, editar=editar)
 
 # Ruta para verificar si el cliente ya existe
 @taller_app.route('/verificar_cliente', methods=['POST'])
