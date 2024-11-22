@@ -36,18 +36,18 @@
         <!-- Formulario para agregar o editar un cliente (visible solo si editar=True o si no se encuentra el cliente) -->
         {% if editar is defined and editar %}
         <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
-            <input type="hidden" name="documento" value="{{ cliente.documento }}">
+            <input type="hidden" name="documento" value="{{ cliente.documento if cliente else documento }}">
             <div class="form-group">
                 <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
-                <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ cliente.nombre_apellidos }}" required>
+                <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ cliente.nombre_apellidos if cliente else '' }}" required>
             </div>
             <div class="form-group">
                 <label for="telefono">Teléfono (9 dígitos, empieza con 9):</label>
-                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono }}" required pattern="9[0-9]{8}">
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono if cliente else '' }}" required pattern="9[0-9]{8}">
             </div>
             <div class="form-group">
                 <label for="email">Correo Electrónico (opcional):</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ cliente.email }}">
+                <input type="email" class="form-control" id="email" name="email" value="{{ cliente.email if cliente else '' }}">
             </div>
             <button type="submit" class="btn btn-success">Guardar Cliente</button>
         </form>
