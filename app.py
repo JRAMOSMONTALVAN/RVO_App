@@ -101,7 +101,8 @@ def agregar_cliente():
         db.session.commit()
         flash('Cliente agregado exitosamente.', 'success')
 
-    return redirect(url_for('home', documento=documento))
+    # Limpiar el formulario después de agregar cliente exitosamente
+    return redirect(url_for('home'))
 
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
