@@ -87,7 +87,7 @@ def agregar_cliente():
 
     # Verificar que todos los campos obligatorios estén completos
     if not nombre_apellidos or not documento or not telefono:
-        flash('Por favor, completa todos los campos obligatorios', 'danger')
+        flash('Por favor completa todos los campos obligatorios', 'danger')
         return render_template('index.html', documento=documento, nombre_apellidos=nombre_apellidos, telefono=telefono, email=email, editar=False)
 
     # Verificar si ya existe un cliente con el mismo documento
