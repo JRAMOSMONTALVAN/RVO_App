@@ -46,12 +46,16 @@ def home():
         cliente = Cliente.query.filter_by(documento=documento).first()
         if cliente:
             editar = True
-    return render_template('index.html', documento=documento or '', cliente=cliente, editar=editar)
+    return render_template('index.html', documento=documento, cliente=cliente, editar=editar)
 
 # Ruta para verificar si el cliente ya existe
 @taller_app.route('/verificar_cliente', methods=['POST'])
 def verificar_cliente():
-    documento = request.form.get('documento')
+    documento = request.form.get('documento', '').strip()
+
+    # Asegurarse de que el valor 'None' se reemplace por una cadena vacía
+    if documento == 'None':
+        documento = ''
 
     # Verificar si el documento tiene una longitud válida (DNI: 8 dígitos, RUC: 11 dígitos)
     if len(documento) not in [8, 11] or not documento.isdigit():
@@ -72,10 +76,14 @@ def verificar_cliente():
 # Ruta para procesar el formulario de ingreso o edición de cliente
 @taller_app.route('/agregar_cliente', methods=['POST'])
 def agregar_cliente():
-    nombre_apellidos = request.form.get('nombre_apellidos')
-    documento = request.form.get('documento')
-    telefono = request.form.get('telefono')
-    email = request.form.get('email')
+    nombre_apellidos = request.form.get('nombre_apellidos', '').strip()
+    documento = request.form.get('documento', '').strip()
+    telefono = request.form.get('telefono', '').strip()
+    email = request.form.get('email', '').strip()
+
+    # Asegurarse de que el valor 'None' se reemplace por una cadena vacía
+    if documento == 'None':
+        documento = ''
 
     # Verificar que todos los campos obligatorios estén completos
     if not nombre_apellidos or not documento or not telefono:
