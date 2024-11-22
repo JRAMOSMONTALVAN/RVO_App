@@ -26,7 +26,7 @@ class Cliente(db.Model):
     email = db.Column(db.String(100))
     vehiculos = db.relationship('Vehiculo', backref='cliente', lazy=True)
 
-# Modelo para Vehículos (debe estar definido después de la clase Cliente)
+# Modelo para Vehículos
 class Vehiculo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
@@ -117,4 +117,3 @@ if __name__ == '__main__':
     threading.Thread(target=open_browser).start()
     port = int(os.environ.get('PORT', 5000))
     taller_app.run(host='0.0.0.0', port=port, debug=True)
-
