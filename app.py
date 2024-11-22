@@ -116,3 +116,9 @@ if __name__ == '__main__':
     threading.Thread(target=open_browser).start()
     port = int(os.environ.get('PORT', 5000))
     taller_app.run(host='0.0.0.0', port=port, debug=True)
+
+# Ruta para listar los clientes ingresados
+@taller_app.route('/clientes')
+def listar_clientes():
+    clientes = Cliente.query.all()
+    return render_template('clientes.html', clientes=clientes)

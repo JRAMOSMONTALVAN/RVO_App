@@ -9,7 +9,7 @@
 <body>
     <div class="container mt-5">
         <h1>Listado de Clientes</h1>
-        <table class="table table-striped mt-4">
+        <table class="table table-bordered mt-4">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -31,9 +31,8 @@
                 {% endfor %}
             </tbody>
         </table>
-        <a href="{{ url_for('home') }}" class="btn btn-primary mt-4">Volver a la página de inicio</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary">Volver a la página de inicio</a>
     </div>
-
     <!-- Script de Bootstrap -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
