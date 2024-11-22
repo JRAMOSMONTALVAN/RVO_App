@@ -103,6 +103,7 @@ def agregar_cliente():
         db.session.commit()
         flash('Cliente agregado exitosamente.', 'success')
 
+    # Limpiar el formulario después de agregar cliente exitosamente
     return redirect(url_for('home'))
 
 # Inicializar la base de datos si no existe
