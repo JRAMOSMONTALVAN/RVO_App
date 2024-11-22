@@ -34,21 +34,6 @@ class Vehiculo(db.Model):
     modelo = db.Column(db.String(100), nullable=False)
     ano_vehiculo = db.Column(db.String(4), nullable=False)
 
-# Modelo para Proformas
-class Proforma(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
-    vehiculo_id = db.Column(db.Integer, db.ForeignKey('vehiculo.id'), nullable=False)
-    descripcion_servicio = db.Column(db.String(200), nullable=False)
-    kilometraje = db.Column(db.String(20), nullable=False)
-    cantidad = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Float, nullable=False)
-    subtotal = db.Column(db.Float, nullable=False)
-    igv = db.Column(db.Float, nullable=False)
-    total = db.Column(db.Float, nullable=False)
-    cliente = db.relationship('Cliente', backref=db.backref('proformas', lazy=True))
-    vehiculo = db.relationship('Vehiculo', backref=db.backref('proformas', lazy=True))
-
 # Ruta principal para mostrar los formularios de cliente y vehículo
 @taller_app.route('/')
 def home():
@@ -69,7 +54,7 @@ def verificar_cliente():
     if cliente:
         # Si el cliente existe, mostrar los datos para editar
         flash('Cliente encontrado. Puedes editar la información.', 'info')
-        return render_template('index.html', cliente=cliente, editar=True)
+        return render_template('index.html', cliente=cliente, documento=documento, editar=True)
     else:
         # Si el cliente no existe, permitir el registro
         flash('Cliente no encontrado. Ingresa la información para registrarlo.', 'warning')
