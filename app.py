@@ -40,7 +40,7 @@ def home():
     documento = request.args.get('documento', '')
     cliente = None
     editar = False
-    if documento:
+    if documento and documento != 'None':
         cliente = Cliente.query.filter_by(documento=documento).first()
         if cliente:
             editar = True
