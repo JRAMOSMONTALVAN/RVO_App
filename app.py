@@ -47,7 +47,7 @@ def home():
     return render_template('index.html', documento=documento, cliente=cliente, editar=editar)
 
 # Ruta para verificar si el cliente ya existe
-taller_app.route('/verificar_cliente', methods=['POST'])(
+@taller_app.route('/verificar_cliente', methods=['POST'])
 def verificar_cliente():
     documento = request.form.get('documento')
 
