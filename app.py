@@ -7,7 +7,8 @@ app.secret_key = 'clave_secreta'  # Cambia esto por una clave segura
 # Ruta para la página principal
 @app.route('/')
 def index():
-    return render_template('index.html')
+    documento = request.args.get('documento', '')
+    return render_template('index.html', documento=documento)
 
 # Ruta para verificar cliente
 @app.route('/verificar_cliente', methods=['POST'])
