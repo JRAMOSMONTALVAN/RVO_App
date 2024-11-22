@@ -37,7 +37,8 @@ class Vehiculo(db.Model):
 # Ruta principal para mostrar los formularios de cliente y vehículo
 @taller_app.route('/')
 def home():
-    return render_template('index.html')
+    documento = request.args.get('documento', '')
+    return render_template('index.html', documento=documento)
 
 # Ruta para verificar si el cliente ya existe
 @taller_app.route('/verificar_cliente', methods=['POST'])
@@ -47,7 +48,7 @@ def verificar_cliente():
     # Verificar si el documento tiene una longitud válida (DNI: 8 dígitos, RUC: 11 dígitos)
     if len(documento) not in [8, 11] or not documento.isdigit():
         flash('El documento debe tener 8 dígitos (DNI) o 11 dígitos (RUC).', 'danger')
-        return redirect(url_for('home'))
+        return redirect(url_for('home', documento=documento))
 
     # Verificar si ya existe un cliente con el mismo documento
     cliente = Cliente.query.filter_by(documento=documento).first()
@@ -72,7 +73,7 @@ def agregar_cliente():
         # Verificar que todos los campos obligatorios estén completos
         if not nombre_apellidos or not documento or not telefono:
             flash('Por favor, completa todos los campos obligatorios', 'danger')
-            return redirect(url_for('home'))
+            return redirect(url_for('home', documento=documento))
 
         # Verificar si ya existe un cliente con el mismo documento
         cliente_existente = Cliente.query.filter_by(documento=documento).first()
@@ -99,7 +100,7 @@ def agregar_cliente():
         db.session.rollback()
         flash(f'Error al agregar o actualizar el cliente: {str(e)}', 'danger')
 
-    return redirect(url_for('home'))
+    return redirect(url_for('home', documento=documento))
 
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
