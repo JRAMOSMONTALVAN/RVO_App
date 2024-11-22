@@ -24,12 +24,19 @@
     <div class="container mt-5">
         <h1>Taller Mecánico - Gestión de Clientes y Vehículos</h1>
         
-        <!-- Formulario para agregar o editar un cliente -->
-        <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
+        <!-- Formulario para verificar si el cliente ya existe -->
+        <form action="{{ url_for('verificar_cliente') }}" method="post" class="mt-4">
             <div class="form-group">
                 <label for="documento">Documento (RUC/DNI):</label>
                 <input type="text" class="form-control" id="documento" name="documento" required value="{{ documento }}">
             </div>
+            <button type="submit" class="btn btn-primary">Verificar Cliente</button>
+        </form>
+        
+        <!-- Formulario para agregar o editar un cliente -->
+        {% if editar %}
+        <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
+            <input type="hidden" name="documento" value="{{ documento }}">
             <div class="form-group">
                 <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
                 <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ cliente.nombre_apellidos if cliente else '' }}" required>
@@ -42,8 +49,9 @@
                 <label for="email">Correo Electrónico (opcional):</label>
                 <input type="email" class="form-control" id="email" name="email" value="{{ cliente.email if cliente else '' }}">
             </div>
-            <button type="submit" class="btn btn-primary">{{ 'Actualizar Cliente' if cliente else 'Agregar Cliente' }}</button>
+            <button type="submit" class="btn btn-success">{{ 'Actualizar Cliente' if cliente else 'Agregar Cliente' }}</button>
         </form>
+        {% endif %}
         
         <!-- Enlace para listar clientes -->
         <div class="mt-4">
