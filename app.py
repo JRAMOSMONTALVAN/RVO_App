@@ -1,11 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 import os
-import threading    
-import time
 
 # Configurar la aplicación Flask
-taller_app = Flask(__name__) 
+taller_app = Flask(__name__)
 taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
 # Configuración de la base de datos SQLite
@@ -79,7 +77,7 @@ def agregar_cliente():
 
     if not nombre_apellidos or not documento or not telefono:
         flash('Por favor, completa todos los campos obligatorios', 'danger')
-        return render_template('index.html', documento=documento, nombre_apellidos=nombre_apellidos, telefono=telefono, email=email, editar=False)
+        return redirect(url_for('home', documento=documento, nombre_apellidos=nombre_apellidos, telefono=telefono, email=email))
 
     cliente_existente = Cliente.query.filter_by(documento=documento).first()
     if cliente_existente:
@@ -87,7 +85,7 @@ def agregar_cliente():
         cliente_existente.telefono = telefono
         cliente_existente.email = email
         db.session.commit()
-        flash('Información del cliente actualizada exitosamente.', 'success')
+        flash('Información del cliente actualizada  exitosamente', 'success')
     else:
         nuevo_cliente = Cliente(
             nombre_apellidos=nombre_apellidos,
