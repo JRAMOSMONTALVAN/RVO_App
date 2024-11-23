@@ -1,11 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
-import threading    
-import time
 
 # Configurar la aplicación Flask
-taller_app = Flask(__name__) 
+taller_app = Flask(__name__)
 taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
 # Configuración de la base de datos SQLite
@@ -106,29 +104,6 @@ def agregar_cliente():
 def listar_clientes():
     clientes = Cliente.query.all()
     return render_template('clientes.html', clientes=clientes)
-
-# Ruta para buscar clientes por nombre o teléfono
-@taller_app.route('/buscar_cliente', methods=['GET', 'POST'])
-def buscar_cliente():
-    clientes = []
-    if request.method == 'POST':
-        criterio = request.form.get('criterio', '').strip()
-        if criterio:
-            clientes = Cliente.query.filter((Cliente.nombre_apellidos.ilike(f'%{criterio}%')) | (Cliente.telefono.ilike(f'%{criterio}%'))).all()
-    return render_template('buscar_cliente.html', clientes=clientes)
-
-# Ruta para editar la información del vehículo
-@taller_app.route('/editar_vehiculo/<int:vehiculo_id>', methods=['GET', 'POST'])
-def editar_vehiculo(vehiculo_id):
-    vehiculo = Vehiculo.query.get_or_404(vehiculo_id)
-    if request.method == 'POST':
-        vehiculo.placa = request.form.get('placa', '').strip()
-        vehiculo.modelo = request.form.get('modelo', '').strip()
-        vehiculo.ano_vehiculo = request.form.get('ano_vehiculo', '').strip()
-        db.session.commit()
-        flash('Información del vehículo actualizada exitosamente.', 'success')
-        return redirect(url_for('listar_clientes'))
-    return render_template('editar_vehiculo.html', vehiculo=vehiculo)
 
 # Inicializar la base de datos si no existe
 with taller_app.app_context():
