@@ -1,0 +1,21 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+h1 {
+    color: #007bff;
+}
+
+.container {
+    margin-top: 50px;
+}
+
+.btn-primary, .btn-secondary, .btn-success, .btn-warning {
+    margin-top: 10px;
+}
+
+table {
+    margin-top: 20px;
+    background-color: #fff;
+}
