@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 import os
+import threading    
+import time
 
 # Configurar la aplicación Flask
-taller_app = Flask(__name__)
+taller_app = Flask(__name__) 
 taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
 # Configuración de la base de datos SQLite
@@ -97,7 +99,7 @@ def agregar_cliente():
         db.session.commit()
         flash('Cliente agregado exitosamente.', 'success')
 
-    return redirect(url_for('home'))
+    return redirect(url_for('home', documento=documento))
 
 # Ruta para ver la lista de clientes
 @taller_app.route('/clientes')
