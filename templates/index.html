@@ -23,6 +23,7 @@
 
     <div class="container mt-5">
         <h1>Taller Mecánico - Gestión de Clientes y Vehículos</h1>
+        <!-- Formulario para verificar el cliente -->
         <form action="{{ url_for('verificar_cliente') }}" method="post" class="mt-4">
             <div class="form-group">
                 <label for="documento">Documento (RUC/DNI):</label>
@@ -34,6 +35,10 @@
         {% if not editar %}
         <!-- Formulario para agregar un cliente -->
         <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
+            <div class="form-group">
+                <label for="documento">Documento (RUC/DNI):</label>
+                <input type="text" class="form-control" id="documento" name="documento" value="{{ documento }}" required>
+            </div>
             <div class="form-group">
                 <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
                 <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ nombre_apellidos }}" required>
