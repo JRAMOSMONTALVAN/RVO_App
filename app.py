@@ -6,8 +6,8 @@ import os
 taller_app = Flask(__name__)
 taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
-# Configuración de la base de datos SQLite
-taller_app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///taller_mecanico.db'
+# Configuración de la base de datos PostgreSQL desde Heroku
+taller_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
 taller_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Crear una instancia de la base de datos
@@ -85,7 +85,7 @@ def agregar_cliente():
         cliente_existente.telefono = telefono
         cliente_existente.email = email
         db.session.commit()
-        flash('Información del cliente actualizada  exitosamente', 'success')
+        flash('Información del cliente actualizada exitosamente', 'success')
     else:
         nuevo_cliente = Cliente(
             nombre_apellidos=nombre_apellidos,
@@ -105,7 +105,7 @@ def listar_clientes():
     clientes = Cliente.query.all()
     return render_template('clientes.html', clientes=clientes)
 
-# Inicializar la base de datos si no existe
+# Inicializar la base de datos en Heroku
 with taller_app.app_context():
     db.create_all()
 
