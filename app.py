@@ -58,47 +58,37 @@ class ProformaItem(db.Model):
     precio_unitario = db.Column(db.Float, nullable=False)
     total = db.Column(db.Float, nullable=False)
 
-# Ruta principal para mostrar el formulario de ingreso del documento
+# Ruta principal
 @taller_app.route('/')
 def home():
     return render_template('index.html')
 
-# Ruta para gestionar vehículos
-@taller_app.route('/vehiculos', methods=['GET', 'POST'])
+# Ruta para listar vehículos
+@taller_app.route('/vehiculos', methods=['GET'])
 def vehiculos():
-    if request.method == 'POST':
-        # Capturar datos del formulario
-        cliente_id = request.form.get('cliente_id')
-        placa = request.form.get('placa')
-        modelo = request.form.get('modelo')
-        ano_vehiculo = request.form.get('ano_vehiculo')
+    return render_template('vehiculos.html')
 
-        # Validar datos
-        if not cliente_id or not placa or not modelo or not ano_vehiculo:
-            flash('Todos los campos son obligatorios.', 'error')
-        else:
-            nuevo_vehiculo = Vehiculo(
-                cliente_id=cliente_id,
-                placa=placa,
-                modelo=modelo,
-                ano_vehiculo=ano_vehiculo
-            )
-            try:
-                db.session.add(nuevo_vehiculo)
-                db.session.commit()
-                flash('Vehículo registrado exitosamente.', 'success')
-            except Exception as e:
-                flash(f'Error al registrar vehículo: {e}', 'error')
+# Ruta para verificar un cliente
+@taller_app.route('/verificar_cliente', methods=['POST'])
+def verificar_cliente():
+    documento = request.form.get('documento')  # Obtener el documento del formulario
+    cliente = Cliente.query.filter_by(documento=documento).first()  # Buscar cliente en la base de datos
 
-    # Obtener todos los vehículos
-    lista_vehiculos = Vehiculo.query.all()
-    return render_template('vehiculos.html', vehiculos=lista_vehiculos)
+    if cliente:
+        flash(f'Cliente encontrado: {cliente.nombre_apellidos}', 'success')
+        return redirect(url_for('home'))
+    else:
+        flash('No se encontró un cliente con el documento proporcionado.', 'error')
+        return redirect(url_for('home'))
 
-# Inicializar la base de datos en Heroku
-with taller_app.app_context():
-    db.create_all()
+# Ruta para registrar un vehículo
+@taller_app.route('/registrar_vehiculo', methods=['POST'])
+def registrar_vehiculo():
+    # Aquí se manejaría la lógica para registrar un vehículo
+    return "Vehículo registrado"
 
 # Ejecutar la aplicación
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    taller_app.run(host='0.0.0.0', port=port, debug=True)
+    with taller_app.app_context():
+        db.create_all()  # Crear las tablas si no existen
+    taller_app.run(debug=True)
