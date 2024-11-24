@@ -1,17 +1,24 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import date
+from dotenv import load_dotenv
 import os
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
 
 # Configurar la aplicación Flask
 taller_app = Flask(__name__)
-taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
+taller_app.secret_key = os.urandom(24)  # Clave secreta para usar mensajes flash
 
-# Configuración de la base de datos PostgreSQL desde Heroku
-taller_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
+# Configuración de la base de datos PostgreSQL
+db_url = os.getenv('DATABASE_URL')
+if db_url is None:
+    raise ValueError("DATABASE_URL no está configurada. Asegúrate de tener un archivo .env con la conexión a la base de datos.")
+taller_app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://", 1)
 taller_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Crear una instancia de la base de datos
+# Crear una instancia de SQLAlchemy
 db = SQLAlchemy(taller_app)
 
 # Modelo para Clientes
@@ -56,50 +63,42 @@ class ProformaItem(db.Model):
 def home():
     return render_template('index.html')
 
-# Ruta para agregar proformas
-@taller_app.route('/agregar_proforma', methods=['POST'])
-def agregar_proforma():
-    cliente_id = request.form.get('cliente_id')
-    vehiculo_id = request.form.get('vehiculo_id')
-    fecha = date.today()
-    items = [
-        {"descripcion": request.form.get('descripcion1'), "cantidad": int(request.form.get('cantidad1')), "precio_unitario": float(request.form.get('precio_unitario1'))},
-        {"descripcion": request.form.get('descripcion2'), "cantidad": int(request.form.get('cantidad2')), "precio_unitario": float(request.form.get('precio_unitario2'))}
-    ]
+# Ruta para gestionar vehículos
+@taller_app.route('/vehiculos', methods=['GET', 'POST'])
+def vehiculos():
+    if request.method == 'POST':
+        # Capturar datos del formulario
+        cliente_id = request.form.get('cliente_id')
+        placa = request.form.get('placa')
+        modelo = request.form.get('modelo')
+        ano_vehiculo = request.form.get('ano_vehiculo')
 
-    subtotal = sum(item["cantidad"] * item["precio_unitario"] for item in items)
-    igv = round(subtotal * 0.18, 2)
-    total = round(subtotal + igv, 2)
+        # Validar datos
+        if not cliente_id or not placa or not modelo or not ano_vehiculo:
+            flash('Todos los campos son obligatorios.', 'error')
+        else:
+            nuevo_vehiculo = Vehiculo(
+                cliente_id=cliente_id,
+                placa=placa,
+                modelo=modelo,
+                ano_vehiculo=ano_vehiculo
+            )
+            try:
+                db.session.add(nuevo_vehiculo)
+                db.session.commit()
+                flash('Vehículo registrado exitosamente.', 'success')
+            except Exception as e:
+                flash(f'Error al registrar vehículo: {e}', 'error')
 
-    nueva_proforma = Proforma(
-        cliente_id=cliente_id,
-        vehiculo_id=vehiculo_id,
-        fecha=fecha,
-        subtotal=subtotal,
-        igv=igv,
-        total=total
-    )
-    db.session.add(nueva_proforma)
-    db.session.commit()
-
-    for item in items:
-        nuevo_item = ProformaItem(
-            proforma_id=nueva_proforma.id,
-            descripcion=item["descripcion"],
-            cantidad=item["cantidad"],
-            precio_unitario=item["precio_unitario"],
-            total=item["cantidad"] * item["precio_unitario"]
-        )
-        db.session.add(nuevo_item)
-
-    db.session.commit()
-    flash('Proforma creada exitosamente', 'success')
-    return redirect(url_for('home'))
+    # Obtener todos los vehículos
+    lista_vehiculos = Vehiculo.query.all()
+    return render_template('vehiculos.html', vehiculos=lista_vehiculos)
 
 # Inicializar la base de datos en Heroku
 with taller_app.app_context():
     db.create_all()
 
+# Ejecutar la aplicación
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     taller_app.run(host='0.0.0.0', port=port, debug=True)

@@ -32,3 +32,5 @@ Fecha de Creación del Resumen: 23/11/2024
 ## Notas
 - Cambiar el repositorio a privado al finalizar el desarrollo.
 - Realizar un seguimiento continuo de los cambios con `git status` y `git push`.
+
+Instalado postgresSQL Clave Jose2603**
