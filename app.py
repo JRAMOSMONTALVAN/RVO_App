@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from datetime import date
 from dotenv import load_dotenv
 import os
 
@@ -28,67 +27,61 @@ class Cliente(db.Model):
     documento = db.Column(db.String(50), nullable=False, unique=True)
     telefono = db.Column(db.String(9), nullable=False)
     email = db.Column(db.String(100))
-    vehiculos = db.relationship('Vehiculo', backref='cliente', lazy=True)
-
-# Modelo para Vehículos
-class Vehiculo(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
-    placa = db.Column(db.String(6), nullable=False, unique=True)
-    modelo = db.Column(db.String(100), nullable=False)
-    ano_vehiculo = db.Column(db.String(4), nullable=False)
-
-# Modelo para Proformas
-class Proforma(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    cliente_id = db.Column(db.Integer, db.ForeignKey('cliente.id'), nullable=False)
-    vehiculo_id = db.Column(db.Integer, db.ForeignKey('vehiculo.id'), nullable=False)
-    fecha = db.Column(db.Date, nullable=False)
-    subtotal = db.Column(db.Float, nullable=False)
-    igv = db.Column(db.Float, nullable=False)
-    total = db.Column(db.Float, nullable=False)
-    items = db.relationship('ProformaItem', backref='proforma', lazy=True)
-
-# Modelo para Items de Proforma
-class ProformaItem(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    proforma_id = db.Column(db.Integer, db.ForeignKey('proforma.id'), nullable=False)
-    descripcion = db.Column(db.String(200), nullable=False)
-    cantidad = db.Column(db.Integer, nullable=False)
-    precio_unitario = db.Column(db.Float, nullable=False)
-    total = db.Column(db.Float, nullable=False)
 
 # Ruta principal
 @taller_app.route('/')
 def home():
-    return render_template('index.html')
-
-# Ruta para listar vehículos
-@taller_app.route('/vehiculos', methods=['GET'])
-def vehiculos():
-    return render_template('vehiculos.html')
+    return render_template('index.html', editar=False, documento="", nombre_apellidos="", telefono="", email="")
 
 # Ruta para verificar un cliente
 @taller_app.route('/verificar_cliente', methods=['POST'])
 def verificar_cliente():
-    documento = request.form.get('documento')  # Obtener el documento del formulario
-    cliente = Cliente.query.filter_by(documento=documento).first()  # Buscar cliente en la base de datos
+    documento = request.form.get('documento')
+    cliente = Cliente.query.filter_by(documento=documento).first()
 
     if cliente:
-        flash(f'Cliente encontrado: {cliente.nombre_apellidos}', 'success')
-        return redirect(url_for('home'))
+        return render_template(
+            'index.html',
+            editar=True,
+            documento=cliente.documento,
+            cliente=cliente,
+            nombre_apellidos=cliente.nombre_apellidos,
+            telefono=cliente.telefono,
+            email=cliente.email
+        )
     else:
-        flash('No se encontró un cliente con el documento proporcionado.', 'error')
+        flash('No se encontró un cliente con el documento proporcionado.', 'danger')
         return redirect(url_for('home'))
 
-# Ruta para registrar un vehículo
-@taller_app.route('/registrar_vehiculo', methods=['POST'])
-def registrar_vehiculo():
-    # Aquí se manejaría la lógica para registrar un vehículo
-    return "Vehículo registrado"
+# Ruta para agregar o actualizar un cliente
+@taller_app.route('/agregar_cliente', methods=['POST'])
+def agregar_cliente():
+    documento = request.form.get('documento')
+    cliente = Cliente.query.filter_by(documento=documento).first()
+
+    if cliente:
+        # Actualizar cliente existente
+        cliente.nombre_apellidos = request.form['nombre_apellidos']
+        cliente.telefono = request.form['telefono']
+        cliente.email = request.form['email']
+        flash('Cliente actualizado con éxito.', 'success')
+    else:
+        # Agregar nuevo cliente
+        nuevo_cliente = Cliente(
+            documento=documento,
+            nombre_apellidos=request.form['nombre_apellidos'],
+            telefono=request.form['telefono'],
+            email=request.form['email']
+        )
+        db.session.add(nuevo_cliente)
+        flash('Cliente agregado con éxito.', 'success')
+
+    db.session.commit()
+    return redirect(url_for('home'))
 
 # Ejecutar la aplicación
 if __name__ == '__main__':
     with taller_app.app_context():
         db.create_all()  # Crear las tablas si no existen
-    taller_app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    taller_app.run(host='0.0.0.0', port=port, debug=True)

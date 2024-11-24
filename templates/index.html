@@ -5,98 +5,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <title>Taller Mecánico - Gestión de Clientes y Vehículos</title>
+    <title>Taller Mecánico - Gestión de Clientes</title>
 </head>
 
 <body>
-    <!-- Mostrar mensajes flash -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <div class="container mt-3">
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-    {% endwith %}
-
     <div class="container mt-5">
-        <h1>Taller Mecánico - Gestión de Clientes y Vehículos</h1>
+        <h1>Gestión de Clientes</h1>
+
+        <!-- Mostrar mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="mt-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
         <form action="{{ url_for('verificar_cliente') }}" method="post" class="mt-4">
             <div class="form-group">
                 <label for="documento">Documento (RUC/DNI):</label>
                 <input type="text" class="form-control" id="documento" name="documento" value="{{ documento }}" required>
             </div>
-            <button type="submit" class="btn btn-primary">Verificar Cliente</button>
+            <button type="submit" class="btn btn-primary">Buscar Cliente</button>
         </form>
 
-        {% if not editar %}
-        <!-- Formulario para agregar un cliente -->
-        <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
-            <div class="form-group">
-                <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
-                <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ nombre_apellidos }}" required>
-            </div>
-            <div class="form-group">
-                <label for="telefono">Teléfono (9 dígitos, empieza con 9):</label>
-                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ telefono }}" required pattern="9[0-9]{8}">
-            </div>
-            <div class="form-group">
-                <label for="email">Correo Electrónico (opcional):</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ email }}">
-            </div>
-            <button type="submit" class="btn btn-success">Agregar Cliente</button>
-        </form>
-        {% else %}
-        <!-- Botón para actualizar cliente si ya existe -->
+        {% if editar %}
         <form action="{{ url_for('agregar_cliente') }}" method="post" class="mt-4">
             <input type="hidden" name="documento" value="{{ documento }}">
             <div class="form-group">
-                <label for="nombre_apellidos">Nombre y Apellidos o Razón Social:</label>
-                <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ cliente.nombre_apellidos }}" required>
+                <label for="nombre_apellidos">Nombre y Apellidos:</label>
+                <input type="text" class="form-control" id="nombre_apellidos" name="nombre_apellidos" value="{{ nombre_apellidos }}" required>
             </div>
             <div class="form-group">
-                <label for="telefono">Teléfono (9 dígitos, empieza con 9):</label>
-                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ cliente.telefono }}" required pattern="9[0-9]{8}">
+                <label for="telefono">Teléfono:</label>
+                <input type="text" class="form-control" id="telefono" name="telefono" value="{{ telefono }}" required>
             </div>
             <div class="form-group">
-                <label for="email">Correo Electrónico (opcional):</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ cliente.email }}">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ email }}">
             </div>
             <button type="submit" class="btn btn-warning">Actualizar Cliente</button>
         </form>
-
-        <!-- Formulario para agregar un vehículo asociado al cliente -->
-        <form action="{{ url_for('agregar_vehiculo') }}" method="post" class="mt-4">
-            <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
-            <div class="form-group">
-                <label for="placa">Placa del Vehículo:</label>
-                <input type="text" class="form-control" id="placa" name="placa" required>
-            </div>
-            <div class="form-group">
-                <label for="modelo">Modelo del Vehículo:</label>
-                <input type="text" class="form-control" id="modelo" name="modelo" required>
-            </div>
-            <div class="form-group">
-                <label for="ano_vehiculo">Año del Vehículo:</label>
-                <input type="text" class="form-control" id="ano_vehiculo" name="ano_vehiculo" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Agregar Vehículo</button>
-        </form>
         {% endif %}
-
-        <!-- Enlace para listar clientes -->
-        <div class="mt-4">
-            <a href="{{ url_for('listar_clientes') }}" class="btn btn-secondary">Ver Lista de Clientes</a>
-        </div>
     </div>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>
+
 
