@@ -1,0 +1,34 @@
+# Resumen del Repositorio RVO_App
+
+Fecha de Creación del Resumen: 23/11/2024
+
+## Estado Actual del Proyecto
+- **Repositorio en GitHub**: [RVO_App](https://github.com/JRAMOSMONTALVAN/RVO_App.git)
+- **Rama Principal**: main
+- **Sincronización**: Todo está actualizado y sincronizado con GitHub. Sin cambios pendientes.
+
+## Estructura de la Carpeta del Proyecto
+- **app.py**: Código principal de la aplicación Flask.
+- **requirements.txt**: Dependencias necesarias para el proyecto (Flask, SQLAlchemy, Werkzeug, etc.).
+- **templates/**: Contiene las vistas HTML del proyecto.
+  - **index.html**: Página principal para gestionar clientes y vehículos.
+  - **clientes.html**: Muestra la lista de clientes registrados.
+  - **proforma.html**: Permite crear y gestionar proformas de servicios/repuestos.
+- **Procfile**: Archivo necesario para desplegar en Heroku.
+- **static/**: Directorio para archivos estáticos como CSS o imágenes (pendiente implementación).
+
+## Configuración de Base de Datos
+- **Base de Datos**: PostgreSQL (configurada en Heroku).
+- **Variable de Entorno**: `DATABASE_URL`, protegida y segura.
+
+## Próximos Pasos
+1. Crear una rama para trabajar en mejoras (`mejoras-proformas` o similar).
+2. Implementar las siguientes funcionalidades:
+   - **Gestión de Vehículos**: Vistas y rutas para registrar y listar vehículos.
+   - **Proformas**: Modelo, vistas y rutas para manejar proformas.
+3. Mejorar validaciones de formularios.
+4. Realizar pruebas en el entorno de Heroku.
+
+## Notas
+- Cambiar el repositorio a privado al finalizar el desarrollo.
+- Realizar un seguimiento continuo de los cambios con `git status` y `git push`.

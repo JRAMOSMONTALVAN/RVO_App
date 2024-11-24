@@ -9,27 +9,32 @@
     <h1>Crear Proforma</h1>
     <form action="/agregar_proforma" method="POST">
         <label for="cliente_id">Cliente:</label>
-        <select id="cliente_id" name="cliente_id" required>
-            {% for cliente in clientes %}
-            <option value="{{ cliente.id }}">{{ cliente.nombre_cliente }} - {{ cliente.placa_vehiculo }}</option>
-            {% endfor %}
-        </select><br><br>
+        <input type="text" id="cliente_id" name="cliente_id" required><br><br>
 
-        <label for="descripcion_servicio">Descripción del Servicio/Repuesto:</label>
-        <input type="text" id="descripcion_servicio" name="descripcion_servicio" required><br><br>
+        <label for="vehiculo_id">Vehículo:</label>
+        <input type="text" id="vehiculo_id" name="vehiculo_id" required><br><br>
 
-        <label for="cantidad">Cantidad:</label>
-        <input type="number" id="cantidad" name="cantidad" required><br><br>
+        <h2>Items de la Proforma</h2>
+        <label for="descripcion1">Descripción (1):</label>
+        <input type="text" id="descripcion1" name="descripcion1" required><br><br>
 
-        <label for="precio_unitario">Precio Unitario:</label>
-        <input type="number" step="0.01" id="precio_unitario" name="precio_unitario" required><br><br>
+        <label for="cantidad1">Cantidad:</label>
+        <input type="number" id="cantidad1" name="cantidad1" required><br><br>
 
-        <label for="kilometraje">Kilometraje:</label>
-        <input type="text" id="kilometraje" name="kilometraje" required><br><br>
+        <label for="precio_unitario1">Precio Unitario:</label>
+        <input type="number" step="0.01" id="precio_unitario1" name="precio_unitario1" required><br><br>
 
-        <button type="submit">Agregar Proforma</button>
+        <label for="descripcion2">Descripción (2):</label>
+        <input type="text" id="descripcion2" name="descripcion2"><br><br>
+
+        <label for="cantidad2">Cantidad:</label>
+        <input type="number" id="cantidad2" name="cantidad2"><br><br>
+
+        <label for="precio_unitario2">Precio Unitario:</label>
+        <input type="number" step="0.01" id="precio_unitario2" name="precio_unitario2"><br><br>
+
+        <button type="submit">Crear Proforma</button>
     </form>
-    <br>
     <a href="/">Volver a la página de inicio</a>
 </body>
 </html>
