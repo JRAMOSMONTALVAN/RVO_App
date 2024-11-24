@@ -1,18 +1,20 @@
 import os
-from flask import Flask
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from datetime import date
 
-# Inicialización de la app Flask
-app = Flask(__name__)
+# Configuración de la aplicación Flask
+taller_app = Flask(__name__)
+taller_app.secret_key = os.urandom(24)  # Necesario para usar flash messages
 
-# Configuración de la base de datos
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')  # Variable de entorno
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Desactivar el rastreo de modificaciones (recomendado)
+# Configuración de la base de datos PostgreSQL
+taller_app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
+taller_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Inicializa la base de datos con SQLAlchemy
-db = SQLAlchemy(app)
+db = SQLAlchemy(taller_app)
 
-# Modelo de ejemplo (modifica según tus necesidades)
+# Modelo de ejemplo (puedes personalizar según tus necesidades)
 class ExampleModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
@@ -21,10 +23,14 @@ class ExampleModel(db.Model):
         return f"<ExampleModel {self.name}>"
 
 # Ruta principal para probar
-@app.route('/')
+@taller_app.route('/')
 def home():
-    return "¡Aplicación conectada a PostgreSQL correctamente!"
+    return render_template('index.html')
 
-# Ejecuta la aplicación
+# Inicializar la base de datos
+with taller_app.app_context():
+    db.create_all()
+
+# Ejecutar la aplicación
 if __name__ == '__main__':
-    app.run(debug=True)
+    taller_app.run(debug=True)
