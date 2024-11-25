@@ -13,6 +13,5 @@ taller_app.secret_key = os.getenv('SECRET_KEY', 'clave_por_defecto_123456')
 def home():
     return "¡Bienvenido a la aplicación del Taller Mecánico!"
 
-# Ejecutar la aplicación localmente
-if __name__ == '__main__':
-    taller_app.run(debug=True, port=8080)
+# Exponemos `taller_app` como `app` para que Gunicorn lo use
+app = taller_app
