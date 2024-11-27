@@ -1,17 +1,34 @@
-import os
-from flask import Flask
+from flask import Flask, jsonify, request, send_file
+from flask_sqlalchemy import SQLAlchemy
+from utils.pdf_generator import generar_pdf_proforma, generar_pdf_orden
+from models import db, Cliente, Vehiculo, Proforma, OrdenServicio
 
-# Configuración de la aplicación Flask
-taller_app = Flask(__name__)
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://usuario:contraseña@host:puerto/base_de_datos"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Configuración de la SECRET_KEY desde las variables de entorno
-# Si no está configurada en Railway, usa una clave predeterminada solo para pruebas locales.
-taller_app.secret_key = os.getenv('SECRET_KEY', 'clave_por_defecto_123456')
+db.init_app(app)
 
-# Ruta de prueba
-@taller_app.route('/')
-def home():
-    return "¡Bienvenido a la aplicación del Taller Mecánico!"
+@app.route('/clientes', methods=['GET'])
+def get_clientes():
+    clientes = Cliente.query.all()
+    return jsonify([cliente.to_dict() for cliente in clientes])
 
-# Exponemos `taller_app` como `app` para que Gunicorn lo use
-app = taller_app
+@app.route('/proformas/<int:proforma_id>/pdf', methods=['GET'])
+def generar_proforma_pdf(proforma_id):
+    try:
+        file_path = generar_pdf_proforma(proforma_id)
+        return send_file(file_path, as_attachment=True)
+    except Exception as e:
+        return jsonify({"error": "Error al generar el PDF", "detalle": str(e)}), 500
+
+@app.route('/ordenes/<int:orden_id>/pdf', methods=['GET'])
+def generar_orden_pdf(orden_id):
+    try:
+        file_path = generar_pdf_orden(orden_id)
+        return send_file(file_path, as_attachment=True)
+    except Exception as e:
+        return jsonify({"error": "Error al generar el PDF", "detalle": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
