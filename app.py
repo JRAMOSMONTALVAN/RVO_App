@@ -2,9 +2,10 @@ from flask import Flask, jsonify, request, send_file
 from flask_sqlalchemy import SQLAlchemy
 from utils.pdf_generator import generar_pdf_proforma, generar_pdf_orden
 from models import db, Cliente, Vehiculo, Proforma, OrdenServicio
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://usuario:contraseña@host:puerto/base_de_datos"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
