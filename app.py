@@ -10,7 +10,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:VxknSONLamcLmRLTNxYlHGDCbwvXNSOg@junction.proxy.rlwy.net:23208/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+db = SQLAlchemy()
+db.init_app(app)
 
 # Modelos
 class Cliente(db.Model):
@@ -49,17 +50,19 @@ def index():
 
 @app.route('/clientes', methods=['GET'])
 def obtener_clientes():
-    clientes = Cliente.query.all()
-    resultado = [
-        {"id": c.id, "nombre": c.nombre, "documento": c.documento, "telefono": c.telefono, "email": c.email}
-        for c in clientes
-    ]
+    with app.app_context():
+        clientes = Cliente.query.all()
+        resultado = [
+            {"id": c.id, "nombre": c.nombre, "documento": c.documento, "telefono": c.telefono, "email": c.email}
+            for c in clientes
+        ]
     return jsonify(resultado)
 
 @app.route('/proformas/<int:proforma_id>/pdf', methods=['GET'])
 def descargar_proforma_pdf(proforma_id):
     try:
-        file_path = generar_pdf_proforma(proforma_id)
+        with app.app_context():
+            file_path = generar_pdf_proforma(proforma_id)
         return send_file(file_path, as_attachment=True)
     except NotFound:
         return jsonify({"error": "Proforma no encontrada"}), 404
@@ -67,24 +70,26 @@ def descargar_proforma_pdf(proforma_id):
 @app.route('/ordenes/<int:orden_id>/pdf', methods=['GET'])
 def descargar_orden_pdf(orden_id):
     try:
-        file_path = generar_pdf_orden(orden_id)
+        with app.app_context():
+            file_path = generar_pdf_orden(orden_id)
         return send_file(file_path, as_attachment=True)
     except NotFound:
         return jsonify({"error": "Orden de servicio no encontrada"}), 404
 
 @app.route('/ordenes/<int:orden_id>', methods=['PUT'])
 def actualizar_estado_orden(orden_id):
-    data = request.get_json()
-    estado = data.get('estado', None)
-    if not estado:
-        return jsonify({"error": "Estado no especificado"}), 400
+    with app.app_context():
+        data = request.get_json()
+        estado = data.get('estado', None)
+        if not estado:
+            return jsonify({"error": "Estado no especificado"}), 400
 
-    orden = OrdenServicio.query.get(orden_id)
-    if not orden:
-        return jsonify({"error": "Orden no encontrada"}), 404
+        orden = OrdenServicio.query.get(orden_id)
+        if not orden:
+            return jsonify({"error": "Orden no encontrada"}), 404
 
-    orden.estado = estado
-    db.session.commit()
+        orden.estado = estado
+        db.session.commit()
 
     return jsonify({
         "id": orden.id,
