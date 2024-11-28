@@ -2,9 +2,12 @@ from flask import Flask, jsonify, request, send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import NotFound
 from utils.pdf_generator import generar_pdf_proforma, generar_pdf_orden
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://usuario:contraseña@host:puerto/base_de_datos'
+
+# Configuración de la base de datos usando la URL proporcionada
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:VxknSONLamcLmRLTNxYlHGDCbwvXNSOg@junction.proxy.rlwy.net:23208/railway'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
