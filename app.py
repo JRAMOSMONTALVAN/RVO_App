@@ -1,17 +1,23 @@
 from flask import Flask, jsonify, request, send_file
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from werkzeug.exceptions import NotFound
 from utils.pdf_generator import generar_pdf_proforma, generar_pdf_orden
+from dotenv import load_dotenv
 import os
+
+# Cargar variables de entorno
+load_dotenv()
 
 app = Flask(__name__)
 
-# Configuración de la base de datos usando una variable de entorno
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://postgres:VxknSONLamcLmRLTNxYlHGDCbwvXNSOg@junction.proxy.rlwy.net:23208/railway')
+# Configuración de la base de datos desde DATABASE_URL
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy()
-db.init_app(app)
+# Inicialización de la base de datos
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Modelos
 class Cliente(db.Model):
@@ -36,7 +42,7 @@ class OrdenServicio(db.Model):
     estado = db.Column(db.String(20), nullable=False, default='Pendiente')
     observaciones = db.Column(db.Text)
 
-# Rutas
+# Rutas principales
 @app.route('/', methods=['GET'])
 def index():
     return jsonify({
@@ -50,53 +56,32 @@ def index():
 
 @app.route('/clientes', methods=['GET'])
 def obtener_clientes():
-    with app.app_context():
-        clientes = Cliente.query.all()
-        resultado = [
-            {"id": c.id, "nombre": c.nombre, "documento": c.documento, "telefono": c.telefono, "email": c.email}
-            for c in clientes
-        ]
+    clientes = Cliente.query.all()
+    resultado = [
+        {"id": c.id, "nombre": c.nombre, "documento": c.documento, "telefono": c.telefono, "email": c.email}
+        for c in clientes
+    ]
     return jsonify(resultado)
 
 @app.route('/proformas/<int:proforma_id>/pdf', methods=['GET'])
 def descargar_proforma_pdf(proforma_id):
     try:
-        with app.app_context():
-            file_path = generar_pdf_proforma(proforma_id)
+        file_path = generar_pdf_proforma(proforma_id)
         return send_file(file_path, as_attachment=True)
     except NotFound:
         return jsonify({"error": "Proforma no encontrada"}), 404
+    except Exception as e:
+        return jsonify({"error": f"Error al generar PDF: {str(e)}"}), 500
 
 @app.route('/ordenes/<int:orden_id>/pdf', methods=['GET'])
 def descargar_orden_pdf(orden_id):
     try:
-        with app.app_context():
-            file_path = generar_pdf_orden(orden_id)
+        file_path = generar_pdf_orden(orden_id)
         return send_file(file_path, as_attachment=True)
     except NotFound:
         return jsonify({"error": "Orden de servicio no encontrada"}), 404
-
-@app.route('/ordenes/<int:orden_id>', methods=['PUT'])
-def actualizar_estado_orden(orden_id):
-    with app.app_context():
-        data = request.get_json()
-        estado = data.get('estado', None)
-        if not estado:
-            return jsonify({"error": "Estado no especificado"}), 400
-
-        orden = OrdenServicio.query.get(orden_id)
-        if not orden:
-            return jsonify({"error": "Orden no encontrada"}), 404
-
-        orden.estado = estado
-        db.session.commit()
-
-    return jsonify({
-        "id": orden.id,
-        "proforma_id": orden.proforma_id,
-        "estado": orden.estado,
-        "observaciones": orden.observaciones
-    })
+    except Exception as e:
+        return jsonify({"error": f"Error al generar PDF: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
