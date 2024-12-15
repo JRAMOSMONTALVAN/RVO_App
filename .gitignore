@@ -1,0 +1,7 @@
+# Ignorar archivos innecesarios
+git
+59e2fd1bd398_reiniciar_migraciones.py}
+*.pyc
+__pycache__/
+*.db
+*.log
