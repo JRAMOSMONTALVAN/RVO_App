@@ -1,39 +1,37 @@
 from flask import Flask, jsonify
 
+# Instancia de Flask
 app = Flask(__name__)
 
 # Ruta principal
-@app.route('/')
+@app.route("/")
 def home():
     return jsonify({"mensaje": "Bienvenido a la API del Taller Mecánico"})
 
 # Ruta para clientes
-@app.route('/clientes', methods=['GET'])
+@app.route("/clientes", methods=["GET"])
 def obtener_clientes():
-    clientes = [
-        {"id": 1, "nombre": "Juan Pérez", "documento": "12345678"},
-        {"id": 2, "nombre": "Ana Gómez", "documento": "87654321"}
-    ]
-    return jsonify(clientes)
+    return jsonify([
+        {"id": 1, "nombre": "Juan Pérez"},
+        {"id": 2, "nombre": "Ana Gómez"}
+    ])
 
 # Ruta para vehículos
-@app.route('/vehiculos', methods=['GET'])
+@app.route("/vehiculos", methods=["GET"])
 def obtener_vehiculos():
-    vehiculos = [
-        {"id": 1, "placa": "ABC-123", "marca": "Toyota", "modelo": "Corolla"},
-        {"id": 2, "placa": "XYZ-789", "marca": "Nissan", "modelo": "Versa"}
-    ]
-    return jsonify(vehiculos)
+    return jsonify([
+        {"id": 1, "marca": "Toyota", "modelo": "Corolla", "placa": "XYZ-123"},
+        {"id": 2, "marca": "Nissan", "modelo": "Sentra", "placa": "ABC-456"}
+    ])
 
 # Ruta para proformas
-@app.route('/proformas', methods=['GET'])
+@app.route("/proformas", methods=["GET"])
 def obtener_proformas():
-    proformas = [
+    return jsonify([
         {"id": 1, "descripcion": "Cambio de aceite", "costo": 100.0},
-        {"id": 2, "descripcion": "Revisión general", "costo": 150.0}
-    ]
-    return jsonify(proformas)
+        {"id": 2, "descripcion": "Revisión de frenos", "costo": 150.0}
+    ])
 
-# Para producción en Railway
+# Configuración para producción
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
